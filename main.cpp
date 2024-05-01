@@ -9,53 +9,21 @@ struct Node {
 struct Tree {
 	int size = 0;
 	Node* root = nullptr;
-
-	bool isLeaf(Node* node) {
-		if (!count()) return false;
-		if ((node->right == nullptr) and (node->left == nullptr)) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	Node* goToParent(int value) {
-		Node* current = root;
-		Node* parent = nullptr;
-		while (current != nullptr) {
-			if (value == current->value) {
-				return parent;
-			}
-			else if (value < current->value) {
-				parent = current;
-				current = current->left;
-			}
-			else if (value > current->value) {
-				parent = current;
-				current = current->right;
-			}
-		}
-		return nullptr;
-	}
 	Node* goTo(int value) {
 		Node* current = root;
-		Node* parent = nullptr;
 		while (current != nullptr) {
 			if (value == current->value) {
 				return current;
 			}
 			else if (value < current->value) {
-				parent = current;
 				current = current->left;
 			}
-			else if (value > current->value) {
-				parent = current;
+			else {
 				current = current->right;
 			}
 		}
 		return nullptr;
 	}
-
 	void add(int value) {
 		Node* newNode = new Node;
 		newNode->value = value;
@@ -92,65 +60,50 @@ struct Tree {
 		}
 	}
 	void remove(int value) {
-		Node* deleteNodeParent = nullptr;
-		Node* deleteNode = root;
-		while (deleteNode != nullptr) {
-			if (deleteNode->value == value) {
+		Node* parent = nullptr;
+		Node* current = root;
+		while (current != nullptr) {
+			if (value == current->value) {
 				break;
 			}
-			deleteNodeParent = deleteNode;
-			if (value < deleteNode->value) {
-				deleteNode = deleteNode->left;
+			parent = current;
+			if (value < current->value) {
+				current = current->left;
 			}
-			else if (value > deleteNode->value) {
-				deleteNode = deleteNode->right;
-			}
-		}
-		while (true) {
-			if (deleteNode == nullptr) return;
-			if ((deleteNode->left == nullptr) and (deleteNode->right == nullptr)) {
-				if (deleteNodeParent != nullptr) {
-					if (deleteNodeParent->left == deleteNode) deleteNodeParent->left = nullptr;
-					if (deleteNodeParent->right == deleteNode) deleteNodeParent->right = nullptr;
-				}
-				if (root == deleteNode) root = nullptr;
-				delete deleteNode;
-				size--;
-				return;
-			}
-			else if ((deleteNode->left != nullptr) and (deleteNode->right == nullptr)) {
-				if (deleteNodeParent != nullptr) {
-					if (deleteNodeParent->left == deleteNode) deleteNodeParent->left = deleteNode->left;
-					if (deleteNodeParent->right == deleteNode) deleteNodeParent->right = deleteNode->left;
-				}
-				if (root == deleteNode) root = deleteNode->left;
-				delete deleteNode;
-				size--;
-				return;
-			}
-			else if ((deleteNode->left == nullptr) and (deleteNode->right != nullptr)) {
-				if (deleteNodeParent != nullptr) {
-					if (deleteNodeParent->left == deleteNode) deleteNodeParent->left = deleteNode->right;
-					if (deleteNodeParent->right == deleteNode) deleteNodeParent->right = deleteNode->right;
-				}
-				if (root == deleteNode) root = deleteNode->right;
-				delete deleteNode;
-				size--;
-				return;
-			}
-			else if ((deleteNode->left != nullptr) and (deleteNode->right != nullptr)) {
-				Node* current = deleteNode;
-				Node* currentParent = deleteNode;
+			else {
 				current = current->right;
-				while (current->left != nullptr) {
-					currentParent = current;
-					current = current->left;
-				}
-				deleteNode->value = current->value;
-				deleteNodeParent = currentParent;
-				deleteNode = current;
 			}
 		}
+		if (current == nullptr) return;
+		if (current->right != nullptr) {
+			parent = current;
+			Node* min = current->right;
+			while (min->left != nullptr) {
+				parent = min;
+				min = min->left;
+			}
+			current->value = min->value;
+			current = min;
+		}
+		if (current != root) {
+			Node* child = nullptr;
+			if (current->left != nullptr) {
+				child = current->left;
+			}
+			else child = current->right;
+
+			if (parent->left == current) {
+				parent->left = child;
+			}
+			else if (parent->right == current) {
+				parent->right = child;
+			}
+		}
+		else {
+			root = current->left;
+		}
+		delete current;
+		size--;
 	}
 	void clear(Node* current) {
 		if (current == nullptr) return;
@@ -184,15 +137,6 @@ void main() {
 		tree.add(input);
 		cin >> input;
 	}
-
-	//убрать
-	cout << "Enter numbers to remove (sequence end sign 0):" << endl;
-	cin >> input;
-	while (input) {
-		tree.remove(input);
-		cin >> input;
-	}
-
 	cout << "Enter numbers to search (sequence end sign 0):" << endl;
 	cin >> input;
 	while (input) {
