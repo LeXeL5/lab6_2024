@@ -75,7 +75,6 @@ struct Tree {
 			}
 		}
 		if (current == nullptr) return;
-		
 		if ((current->right != nullptr) && (current->left != nullptr)) {
 			parent = current;
 			Node* min = current->right;
@@ -86,12 +85,14 @@ struct Tree {
 			current->value = min->value;
 			current = min;
 		}
+		Node* child = nullptr;
+		if (current->left != nullptr) {
+			child = current->left;
+		}
+		else {
+			child = current->right;
+		}
 		if (current != root) {
-			Node* child = nullptr;
-			if (current->left != nullptr) {
-				child = current->left;
-			}
-			else child = current->right;
 			if (parent->left == current) {
 				parent->left = child;
 			}
@@ -100,7 +101,7 @@ struct Tree {
 			}
 		}
 		else {
-			root = current->left;
+			root = child;
 		}
 		delete current;
 		size--;
